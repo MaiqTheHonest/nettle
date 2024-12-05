@@ -30,6 +30,7 @@ class KMeansClustering:
             for data_point in X:
                 distances = KMeansClustering.euclidean_distance(data_point, self.centroids)
                 cluster_num = np.argmin(distances)   # finds index of the nearest (i.e. smallest distance) centroid
+                
                 y.append(cluster_num)
             
             y = np.array(y)
@@ -45,7 +46,7 @@ class KMeansClustering:
                 if len(indices) == 0:
                     cluster_centers.append(self.centroids[i])
                 else:
-                    cluster_centers.append(np.mean(X[indices], axis=0)[0])
+                    cluster_centers.append(np.mean(X[indices], axis=0)[0])  # readjusts centroids to mean of new cluster
 
             if np.max(self.centroids - np.array(cluster_centers)) < 0.0001:
                 break
