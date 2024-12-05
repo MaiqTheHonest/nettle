@@ -1,22 +1,66 @@
+from time import sleep
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from time import perf_counter
+
 start_time = perf_counter()
 print("experimental_hh")
 
+
+
+
+test_data = np.random.randint(0, 100, (100, 2))
+
+fig = go.Figure()
+
+
+trace1 = go.Scatter(
+    x=[],
+    y=[],
+    mode="markers",
+    name="points"
+)
+
+trace2 = go.Scatter(
+    x=[],
+    y=[],
+    mode="markers",
+    marker=dict(size=12, color="green", symbol="circle-x-open"),
+    name='centroids'
+)
+trace3 = go.Scatter(
+    x=[],
+    y=[],
+    mode="markers",
+    marker=dict(size=8, color="green", symbol="diamond"),
+    name='perfect centre'
+)
+
+fig.add_trace(trace1)
+fig.add_trace(trace2)
+fig.add_trace(trace3)
+
 class KMeansClustering:
 
-    def __init__(self, k=3):
+    def __init__(self, figure, k=3):
         self.k = k
         self.centroids = None
-        self.perfect_cent = None 
+        self.perfect_cent = None
+        self.figure = figure
     
     @staticmethod
     def euclidean_distance(data_point, centroids):
         return np.sqrt(np.sum((centroids - data_point)**2, axis=1))
 
-
+    def draw(self, labs):
+        global fig
+        self.figure.update_traces(x=test_data[:, 0], y=test_data[:, 1], selector=dict(name="points"), marker=dict(color=labs))
+        self.figure.update_traces(x=self.centroids[:, 0], y=self.centroids[:, 1], selector=dict(name="centroids"), marker=dict(size=12, color="green", symbol="circle-x-open"))
+        self.figure.update_traces(x=[self.perfect_cent[0]], y=[self.perfect_cent[1]], selector=dict(name="perfect centre"), marker=dict(size=8, color="green", symbol="diamond"))
+        fig.show()
+        sleep(1)
+        print("drawn")
 
     def fit(self, X, max_iterations=200): # X is data
         self.perfect_cent = [np.mean(X[:, 0]), np.mean(X[:, 1])]
@@ -52,46 +96,35 @@ class KMeansClustering:
                 break
             else:
                 self.centroids = np.array(cluster_centers)
+            
+            
+            self.draw(labs=y)
+        
 
         return y
     
 
-test_data = np.random.randint(0, 100, (100, 2))
 
-kmeans = KMeansClustering(k=3)
+
+
+
+kmeans = KMeansClustering(k=3, figure=fig)
 
 labels = kmeans.fit(test_data)
-trace1 = go.Scatter(
-    x=test_data[:, 0],
-    y=test_data[:, 1],
-    mode="markers",
-    name="points",
-    marker=dict(color=labels)
-    )
 
-trace2 = go.Scatter(
-    x=kmeans.centroids[:, 0],
-    y=kmeans.centroids[:, 1],
-    mode="markers",
-    marker=dict(size=12, color="green", symbol="circle-x-open"),
-    name='centroids'
-)
-trace3 = go.Scatter(
-    x=[kmeans.perfect_cent[0]],
-    y=[kmeans.perfect_cent[1]],
-    mode="markers",
-    marker=dict(size=8, color="green", symbol="diamond"),
-    name='perfect centre'
-)
 
-fig = go.Figure()
-fig.add_trace(trace1)
-fig.add_trace(trace2)
-fig.add_trace(trace3)
+
 
 
 fig['layout'].update(height = 500, width = 600)
 
-fig.show()
+# fig.show()
+
+
+
+
+
+
+
 
 print(f"script finished in {perf_counter() - start_time} seconds")
