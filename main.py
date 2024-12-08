@@ -4,7 +4,7 @@ from time import perf_counter
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
-from sklearn.datasets import make_blobs
+
 start_time = perf_counter()
 
 #test_data = np.random.randint(0, 100, (100, 2))
