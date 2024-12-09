@@ -11,27 +11,26 @@ start_time = perf_counter()
 test_data = np.concatenate([np.random.normal(0, 5, size=(200, 2)), 
     np.random.normal(5, 3, size=(200, 2))]) # bimodal normal draw
 
-# formatting
-fig = plt.figure()
-scatter1 = plt.scatter(test_data[:, 0], test_data[:, 1], label='points')
-scatter2 = plt.scatter([], [], c='red', marker="*", s=96,  label='centroids')
-scatter3 = plt.scatter([], [], c='green', label='perfect centre')
 
 class KMeansClustering:
 
-    def __init__(self, figure, k=3):
+    def __init__(self, k=3):
         self.k = k
         self.centroids = None
         self.perfect_cent = None
-        self.figure = figure
+        self.fig = plt.figure()
+        self.scatter1 = plt.scatter(test_data[:, 0], test_data[:, 1], label='points')
+        #self.scatter1.set_cmap("tab20") # HAS to be called separately outside of scatter1 init
+        self.scatter2 = plt.scatter([], [], c='red', marker="*", s=96,  label='centroids')
+        self.scatter3 = plt.scatter([], [], c='green', label='perfect centre')
     
     @staticmethod
     def euclidean_distance(data_point, centroids):
         return np.sqrt(np.sum((centroids - data_point)**2, axis=1))
     
     def update_graph(self, labs=None):
-        scatter1.set_array(labs)
-        scatter2.set_offsets(self.centroids)
+        self.scatter1.set_array(labs)
+        self.scatter2.set_offsets(self.centroids)
         plt.pause(0.5)
         plt.draw()
         print(".")
@@ -76,6 +75,6 @@ class KMeansClustering:
         return y
 
 if __name__ == "__main__":
-    kmeans = KMeansClustering(k=5, figure=fig)
+    kmeans = KMeansClustering(k=5)
     labels = kmeans.fit(test_data)
     print(f"script finished in {perf_counter() - start_time} seconds")
