@@ -25,8 +25,22 @@ class KMeansClustering:
         self.scatter3 = plt.scatter([], [], c='green', label='perfect centre')
     
     @staticmethod
-    def euclidean_distance(data_point, centroids: np.array):
-        return np.sqrt(np.sum((centroids - data_point)**2, axis=1))
+    def euclidean_distance(data_point, centroids: np.array): # np.atleast_2d version is slower than this ugly [[]] / [] case handling
+        if centroids.ndim == 1:
+            return np.sqrt(np.sum((centroids - data_point)**2, axis=0))
+        
+        blarg = np.sqrt(np.sum((centroids - data_point)**2, axis=1))
+
+        return blarg[0] if centroids.shape[0] == 1 else blarg
+
+            # OR
+            # if np.size(centroids) == 2:
+            #     return blarg[0]
+            # else:
+            #     return blarg
+
+        
+
     
     def update_graph(self, labs=None):
         self.scatter1.set_array(labs)
