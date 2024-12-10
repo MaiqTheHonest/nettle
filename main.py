@@ -25,13 +25,13 @@ class KMeansClustering:
         self.scatter3 = plt.scatter([], [], c='green', label='perfect centre')
     
     @staticmethod
-    def euclidean_distance(data_point, centroids):
+    def euclidean_distance(data_point, centroids: np.array):
         return np.sqrt(np.sum((centroids - data_point)**2, axis=1))
     
     def update_graph(self, labs=None):
         self.scatter1.set_array(labs)
         self.scatter2.set_offsets(self.centroids)
-        plt.pause(0.5)
+        plt.pause(0.1)
         plt.draw()
         print(".")
 
@@ -39,11 +39,13 @@ class KMeansClustering:
         self.perfect_cent = [np.mean(X[:, 0]), np.mean(X[:, 1])]
         self.centroids = np.random.uniform(np.amin(X, axis=0), np.amax(X, axis=0), 
                                            size=(self.k, X.shape[1]))    # get the new centroids within dimension range
-
+        print(np.shape(self.centroids), type(self.centroids))
+        print(self.centroids)
         for _ in range(max_iterations):
             y = []
 
             for data_point in X:
+                
                 distances = KMeansClustering.euclidean_distance(data_point, self.centroids)
                 cluster_num = np.argmin(distances)   # finds index of the nearest (i.e. smallest distance) centroid
                 
