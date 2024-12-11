@@ -26,12 +26,13 @@ class KMeansClustering:
     
     @staticmethod
     def euclidean_distance(data_point, centroids: np.array): # np.atleast_2d version is slower than this ugly [[]] / [] case handling
+        
         if centroids.ndim == 1:
             return np.sqrt(np.sum((centroids - data_point)**2, axis=0))
         
         blarg = np.sqrt(np.sum((centroids - data_point)**2, axis=1))
 
-        return blarg[0] if centroids.shape[0] == 1 else blarg
+        return blarg[0] if centroids.shape[0] == 1 else blarg   # returns array of distances to each centroid in centroids, not their sum
 
             # OR
             # if np.size(centroids) == 2:
