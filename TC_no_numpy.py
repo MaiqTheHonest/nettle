@@ -6,16 +6,16 @@ timer1 = perf_counter()
 
 #points = [[1,5],[3,2],[7,3]]
 
-def weighted_distance(points, center, k) -> list:
+def weighted_distance(points, center, weight=1) -> list:
 
     center_x, center_y = center
 
     def TC_dist_to_points(x,y):
         res=0
         for point in points:
-            a, b = point
+            a, b = point[0]
             res+=sqrt((x-a)**2+(y-b)**2)                # sums the point-centroid differences
-        res+= k*sqrt((x-center_x)**2+(y-center_y)**2)   # sums the centroid-center difference
+        res+= weight*sqrt((x-center_x)**2+(y-center_y)**2)   # sums the centroid-center difference
         return res
 
     step=1
