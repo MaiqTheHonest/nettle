@@ -1,20 +1,12 @@
 
-import numpy as np
-from math import sqrt
-from TC_no_numpy import weighted_distance
+import numpy as np 
 from time import perf_counter
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
+from TC_no_numpy import weighted_distance # import own Weiszfeld's algorithm
 
 start_time = perf_counter()
-
-
-#test_data = np.random.randint(0, 100, (100, 2))
-np.random.seed(12345)
-test_data = np.concatenate([np.random.normal(0, 5, size=(200, 2)), 
-    np.random.normal(5, 3, size=(200, 2))]) # bimodal normal draw
-
 
 class KMeansClustering:
 
@@ -33,20 +25,13 @@ class KMeansClustering:
         
         if centroids.ndim == 1:
             return np.sqrt(np.sum((centroids - data_point)**2, axis=0))
-        
+
         blarg = np.sqrt(np.sum((centroids - data_point)**2, axis=1))
 
         return blarg[0] if centroids.shape[0] == 1 else blarg   # returns array of distances to each centroid in centroids, not their sum
 
-            # OR
-            # if np.size(centroids) == 2:
-            #     return blarg[0]
-            # else:
-            #     return blarg
 
         
-
-    
     def update_graph(self, labs=None):
         self.scatter1.set_array(labs)
         self.scatter2.set_offsets(self.centroids)
@@ -55,8 +40,10 @@ class KMeansClustering:
         plt.draw()
         print(".")
 
-    def fit(self, X, center, max_iterations=200): # X is data
-        #self.perfect_cent = [np.mean(X[:, 0]), np.mean(X[:, 1])]
+    def fit(self, X, center, weight=1, max_iterations=200): # X is data
+        # self.perfect_cent = [np.mean(X[:, 0]), np.mean(X[:, 1])]
+        self.perfect_cent = weighted_distance(X, )
+
         self.centroids = np.random.uniform(np.amin(X, axis=0), np.amax(X, axis=0), 
                                            size=(self.k, X.shape[1]))    # get the new centroids within dimension range
         print(np.shape(self.centroids), type(self.centroids))
@@ -86,12 +73,8 @@ class KMeansClustering:
                     cluster_centers.append(self.centroids[count])
                 else:
 
-                    ####### SWITCH TO append not mean but weighted_distance
-                    total_cost = weighted_distance(X[indices].tolist(), center=center, weight=10)
-                    #print()
-                    #print(total_cost)
-                    #cluster_centers.append(total_cost)[0]
-                    cluster_centers.append(total_cost[:2])  # readjusts each cluster centroid to mean of points belonging to it [x, y, TC]
+                    total_cost = weighted_distance(X[indices].tolist(), center=center, weight=weight)
+                    cluster_centers.append(total_cost[:2])  # readjusts each cluster centroid to geometric median of points belonging to it [x, y, TC]
 
 
             if np.max(self.centroids - np.array(cluster_centers)) < 0.0001:
@@ -105,6 +88,11 @@ class KMeansClustering:
         return y
 
 if __name__ == "__main__":
-    kmeans = KMeansClustering(k=5)
-    labels = kmeans.fit(test_data, center=[2,2])
+    #test_data = np.random.randint(0, 100, (100, 2))
+    np.random.seed(12345)
+    test_data = np.concatenate([np.random.normal(0, 5, size=(200, 2)), 
+        np.random.normal(5, 3, size=(200, 2))]) # bimodal normal draw
+    print(test_data)
+    kmeans = KMeansClustering(k=2)
+    labels = kmeans.fit(test_data, center=[2,2], weight=5)
     print(f"script finished in {perf_counter() - start_time} seconds")
