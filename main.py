@@ -68,8 +68,6 @@ class GeomMedianClustering:
             for i in range(self.k):
                 cluster_indices.append(np.argwhere(y == i))     # i.e. which indices belong to cluster k, for each k?
 
-
-
             cluster_centers = []
 
             for count, indices in enumerate(cluster_indices):
@@ -80,6 +78,8 @@ class GeomMedianClustering:
                     network_total_cost += total_cost[2]
                     cluster_centers.append(total_cost[:2])  # readjusts each cluster centroid to geometric median of points belonging to it [x, y, TC]
 
+
+
             if np.max(self.centroids - np.array(cluster_centers)) < 0.0001:
                 break
             else:
@@ -88,15 +88,19 @@ class GeomMedianClustering:
             
             self.update_graph(labs=y)
  
-        return network_total_cost
+        return cluster_centers, network_total_cost
+
+
+
 
 if __name__ == "__main__":
-    #test_data = np.random.randint(0, 100, (100, 2))
-    np.random.seed(12345)
-    test_data = np.concatenate([np.random.normal(0, 5, size=(200, 2)), 
-         np.random.normal(5, 3, size=(200, 2))]) # bimodal normal draw
+    # test_data = np.random.randint(0, 100, (500, 2))
+    #np.random.seed(12345)
+    test_data = np.concatenate([np.random.normal(0, 5, size=(500, 2)), 
+         np.random.normal(5, 3, size=(500, 2))]) # bimodal normal draw
     
-    gmeans = GeomMedianClustering(k=2)
-    results = gmeans.fit(test_data, weight=5)
-    print(f"total network cost is {results} units")
+    gmeans = GeomMedianClustering(k=5)
+    results = gmeans.fit(test_data, weight=1)
+    print(f"{results[0]} are the optimal facility locations")
+    print(f"total network cost is {results[1]} units")
     print(f"script finished in {perf_counter() - start_time} seconds")
