@@ -42,6 +42,7 @@ class GeomMedianClustering:
 
     def fit(self, X, center=None, weight=1, max_iterations=200): # X is data
 
+        network_total_cost = 0
         self.perfect_cent = weighted_distance([X.tolist()])[:2] if center is not None else center   # if center was not provided, use geometric median
         
         self.centroids = np.random.uniform(np.amin(X, axis=0), np.amax(X, axis=0), 
@@ -76,6 +77,7 @@ class GeomMedianClustering:
                     cluster_centers.append(self.centroids[count])
                 else:
                     total_cost = weighted_distance(X[indices].tolist(), center=self.perfect_cent, weight=weight)
+                    network_total_cost += total_cost[2]
                     cluster_centers.append(total_cost[:2])  # readjusts each cluster centroid to geometric median of points belonging to it [x, y, TC]
 
             if np.max(self.centroids - np.array(cluster_centers)) < 0.0001:
@@ -85,15 +87,16 @@ class GeomMedianClustering:
             
             
             self.update_graph(labs=y)
-            
-        return y
+ 
+        return network_total_cost
 
 if __name__ == "__main__":
     #test_data = np.random.randint(0, 100, (100, 2))
     np.random.seed(12345)
     test_data = np.concatenate([np.random.normal(0, 5, size=(200, 2)), 
-        np.random.normal(5, 3, size=(200, 2))]) # bimodal normal draw
+         np.random.normal(5, 3, size=(200, 2))]) # bimodal normal draw
     
     gmeans = GeomMedianClustering(k=2)
-    labels = gmeans.fit(test_data, weight=5)
+    results = gmeans.fit(test_data, weight=5)
+    print(f"total network cost is {results} units")
     print(f"script finished in {perf_counter() - start_time} seconds")
