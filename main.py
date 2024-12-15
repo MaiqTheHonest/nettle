@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
 from TC_no_numpy import weighted_distance # import own Weiszfeld's algorithm
+from matplotlib.collections import LineCollection
 
 start_time = perf_counter()
 
@@ -13,12 +14,12 @@ class GeomMedianClustering:
     def __init__(self, k=3):
         self.k = k
         self.centroids = None
-        self.perfect_cent = None
+        self.perfect_cent = [None, None]  # filler for EI
         self.fig = plt.figure()
         self.scatter1 = plt.scatter(test_data[:, 0], test_data[:, 1], label='points')
         #self.scatter1.set_cmap("tab20") # HAS to be called separately outside of scatter1 init
         self.scatter2 = plt.scatter([], [], c='red', marker="*", s=96,  label='centroids')
-        self.scatter3 = plt.scatter([2], [2], c='green', label='perfect centre', marker="*", s=96)
+        self.scatter3 = plt.scatter(0, 0, c='green', label='perfect centre', marker="*", s=96)
     
     @staticmethod
     def euclidean_distance(data_point, centroids: np.array): # np.atleast_2d version is slower than this ugly [[]] / [] case handling
@@ -32,19 +33,29 @@ class GeomMedianClustering:
 
 
         
-    def update_graph(self, labs=None):
+    def update_graph(self, labs=None, dat=None):
         self.scatter1.set_array(labs)
         self.scatter2.set_offsets(self.centroids)
+        point_segments = np.stack([dat, self.centroids[labs]], axis=1)
 
-        plt.pause(0.1)
+        centroid_segments = np.stack([self.centroids, [self.perfect_cent]*self.k], axis=1)
+        lca = LineCollection(point_segments, color='black', alpha=0.1)
+        lcb = LineCollection(centroid_segments, color='blue')
+        plt.gca().add_collection(lca)
+        plt.gca().add_collection(lcb)
         plt.draw()
+        plt.pause(0.1)
+        lca.remove()
+        lcb.remove()
         print(".")
 
     def fit(self, X, center=None, weight=1, max_iterations=200): # X is data
 
         network_total_cost = 0
-        self.perfect_cent = weighted_distance([X.tolist()])[:2] if center is not None else center   # if center was not provided, use geometric median
-        
+
+        self.perfect_cent = center if center is not None else weighted_distance(points=X.tolist())[:2]   # if center was not provided, use geometric median
+        self.scatter3.set_offsets(self.perfect_cent)
+
         self.centroids = np.random.uniform(np.amin(X, axis=0), np.amax(X, axis=0), 
                                            size=(self.k, X.shape[1]))    # get the new centroids within dimension range
 
@@ -74,7 +85,8 @@ class GeomMedianClustering:
                 if len(indices) == 0:
                     cluster_centers.append(self.centroids[count])
                 else:
-                    total_cost = weighted_distance(X[indices].tolist(), center=self.perfect_cent, weight=weight)
+                    total_cost = weighted_distance(np.squeeze(X[indices]).tolist(), center=self.perfect_cent, weight=weight) # squeeze turns [[]] into [] within X
+
                     network_total_cost += total_cost[2]
                     cluster_centers.append(total_cost[:2])  # readjusts each cluster centroid to geometric median of points belonging to it [x, y, TC]
 
@@ -86,21 +98,25 @@ class GeomMedianClustering:
                 self.centroids = np.array(cluster_centers)
             
             
-            self.update_graph(labs=y)
- 
-        return cluster_centers, network_total_cost
+            self.update_graph(labs=y, dat=X)
 
+
+        return cluster_centers, network_total_cost
 
 
 
 if __name__ == "__main__":
     # test_data = np.random.randint(0, 100, (500, 2))
     #np.random.seed(12345)
-    test_data = np.concatenate([np.random.normal(0, 5, size=(500, 2)), 
-         np.random.normal(5, 3, size=(500, 2))]) # bimodal normal draw
+    test_data = np.concatenate([np.random.normal(0, 5, size=(100, 2)), 
+         np.random.normal(5, 3, size=(100, 2))]) # bimodal normal draw
     
-    gmeans = GeomMedianClustering(k=5)
+    print(type(test_data))
+    gmeans = GeomMedianClustering(k=3)
     results = gmeans.fit(test_data, weight=1)
+
     print(f"{results[0]} are the optimal facility locations")
     print(f"total network cost is {results[1]} units")
     print(f"script finished in {perf_counter() - start_time} seconds")
+
+    
