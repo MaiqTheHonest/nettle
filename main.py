@@ -19,7 +19,7 @@ class GeomMedianClustering:
         self.scatter1 = plt.scatter(test_data[:, 0], test_data[:, 1], label='points')
         #self.scatter1.set_cmap("tab20") # HAS to be called separately outside of scatter1 init
         self.scatter2 = plt.scatter([], [], c='red', marker="*", s=96,  label='centroids')
-        self.scatter3 = plt.scatter(0, 0, c='green', label='perfect centre', marker="*", s=96)
+        self.scatter3 = plt.scatter(0, 0, c='blue', label='perfect centre', marker="*", s=96)
     
     @staticmethod
     def euclidean_distance(data_point, centroids: np.array): # np.atleast_2d version is slower than this ugly [[]] / [] case handling
@@ -40,7 +40,7 @@ class GeomMedianClustering:
 
         centroid_segments = np.stack([self.centroids, [self.perfect_cent]*self.k], axis=1)
         lca = LineCollection(point_segments, color='black', alpha=0.1)
-        lcb = LineCollection(centroid_segments, color='blue')
+        lcb = LineCollection(centroid_segments, linewidth=2, linestyle="dashed", color='blue', alpha=0.8)
         plt.gca().add_collection(lca)
         plt.gca().add_collection(lcb)
         plt.draw()
