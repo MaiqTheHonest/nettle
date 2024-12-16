@@ -4,7 +4,7 @@ from time import perf_counter
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 mpl.use('TkAgg')
-from TC_no_numpy import weighted_distance # import own Weiszfeld's algorithm
+from Weiszfelds_algorithm import weighted_distance # import own Weiszfeld's algorithm
 from matplotlib.collections import LineCollection
 
 
@@ -32,7 +32,7 @@ class GeomMedianClustering:
 
     def initialize_scatters(self):      # this is not in __init__ because scatters overlap when >1 class instances are created 
         self.scatter1 = self.ax1.scatter(test_data[:, 0], test_data[:, 1], label='points', s=48, ec='black', lw=0.05)
-        self.scatter1.set_cmap("Set3") # HAS to be called separately outside of scatter1 init
+        self.scatter1.set_cmap("Accent") # HAS to be called separately outside of scatter1 init
         self.scatter2 = self.ax1.scatter([], [], c='red', marker="*", s=96,  label='centroids')
         self.scatter3 = self.ax1.scatter(0, 0, c='blue', label='perfect centre', marker="*", s=96)
 
@@ -162,6 +162,7 @@ if __name__ == "__main__":
 
     for instance in instances:
         lel = instance.fit(test_data, weight=1)
+        print(f"TC now is {lel[-1]} units")
 
     # print(f"{results1[0]} are the optimal facility locations")
     # print(f"total network cost is {results1[1]} units")
