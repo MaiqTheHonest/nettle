@@ -1,0 +1,2 @@
+"clear" and "add" params in update_graph() are for delays between plotting class instances.
+they are generally not necessary - remove if large overhead.

@@ -7,7 +7,7 @@ def weighted_distance(points, center=None, weight=1) -> list:
     def TC_dist_to_points(x,y):
         res=0
         for point in points:
-
+  
             a, b = point
             res+=sqrt((x-a)**2+(y-b)**2)                     # sums the point-centroid differences
 
@@ -22,7 +22,7 @@ def weighted_distance(points, center=None, weight=1) -> list:
 
     TC_now = TC_dist_to_points(inix, iniy)
 
-    while step > 0.000001:
+    while step > 0.00001:
         f=False
         for dx, dy in [(-1,0), (1,0), (0,1), (0, -1)]:
             curx, cury = inix+step*dx, iniy+ step*dy
