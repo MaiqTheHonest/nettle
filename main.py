@@ -22,7 +22,7 @@ class GeomMedianClustering:
         self.perfect_cent = [None, None]  # filler for EI
         self.fig = fig
         self.ax1 = ax1
-        self.ax2 = ax2
+        #self.ax2 = ax2
         self.scatter1 = None
         #self.scatter1.set_cmap("tab20") # HAS to be called separately outside of scatter1 init
         self.scatter2 = None
@@ -33,8 +33,8 @@ class GeomMedianClustering:
     def initialize_scatters(self):      # this is not in __init__ because scatters overlap when >1 class instances are created 
         self.scatter1 = self.ax1.scatter(test_data[:, 0], test_data[:, 1], label='points', s=48, ec='black', lw=0.05)
         self.scatter1.set_cmap("Accent") # HAS to be called separately outside of scatter1 init
-        self.scatter2 = self.ax1.scatter([], [], c='red', marker="*", s=96,  label='centroids')
-        self.scatter3 = self.ax1.scatter(0, 0, c='blue', label='perfect centre', marker="*", s=96)
+        self.scatter2 = self.ax1.scatter([], [], c='black', marker="*", s=96,  label='centroids')
+        self.scatter3 = self.ax1.scatter(0, 0, c='red', label='perfect centre', marker="*", s=96)
 
     def uninitialize_scatters(self):    # again, avoids overlap with multiple instances
         self.scatter1.remove()
@@ -65,7 +65,7 @@ class GeomMedianClustering:
         if add is True:
 
             self.lca = LineCollection(point_segments, color='black', alpha=0.1)
-            self.lcb = LineCollection(centroid_segments, linewidth=2, linestyle="dashed", color='blue', alpha=0.8)
+            self.lcb = LineCollection(centroid_segments, linewidth=2, linestyle="dashed", color='#3d4547', alpha=0.8)
             self.ax1.add_collection(self.lca)
             self.ax1.add_collection(self.lcb)
 
@@ -137,7 +137,7 @@ class GeomMedianClustering:
         
 
         self.update_graph(labs=y, dat=X, clear=False, add=True)
-        plt.pause(0.5)
+        plt.pause(0.3)
         self.update_graph(labs=y, dat=X, clear=True, add=False)
         self.uninitialize_scatters()
         
@@ -147,22 +147,55 @@ class GeomMedianClustering:
 
 if __name__ == "__main__":
     # test_data = np.random.randint(0, 100, (500, 2))
-    #np.random.seed(1234)
+    weight = 2
+
+    np.random.seed(123)
     test_data = np.concatenate([np.random.normal(0, 5, size=(100, 2)), 
          np.random.normal(5, 3, size=(100, 2))]) # bimodal normal draw
 
-    fig = plt.figure(figsize=(10,8), constrained_layout=True)
+    fig = plt.figure(figsize=(10,8))
 
-    gs0 = fig.add_gridspec(4, 4)
-
+    gs0 = fig.add_gridspec(4, 4, wspace=0.25, right=0.90)
+    
     main_ax = fig.add_subplot(gs0[0:4, 0:3])
+    
     sub_ax = fig.add_subplot(gs0[0,3])
-    instances = [GeomMedianClustering(k=i, fig=fig, ax1=main_ax, ax2=sub_ax) for i in range(1, 7)]
+    sub_ax.set_yticklabels([])
+    sub_ax.yaxis.set_label_position("right")
+    klip, = sub_ax.plot(0, 0)
+    
+    sub_ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True))    # ensures xticks are always integers
+    sub_ax.set_xlim([1, 5])
+    sub_ax.set_xlabel('centroid count, k')
+    sub_ax.set_ylabel('network cost')
+
+    text_ax = fig.add_subplot(gs0[1,3])
+    text_ax.set_axis_off()
+    text_obj = text_ax.text(0, 0, f"centroid count = 0 \norigin-centroid weight = {weight} \ncentroid-point weight = 1 \nnetwork cost = 0",
+                             fontsize=11, linespacing=2)
+
+    instances = [GeomMedianClustering(k=i, fig=fig, ax1=main_ax, ax2=sub_ax) for i in range(1, 11)]
+
+    TC = []
+    OC = []
+    
+    for count, instance in enumerate(instances):
+        
+        output = instance.fit(test_data, weight=weight)
+        blarg = round(output[-1], 2)
+        TC.append(blarg)
+        OC.append(count+1)
+        text_obj.set_text(f"centroid count = {count+1} \norigin-centroid weight = {weight} \ncentroid-point weight = 1 \nnetwork cost = {blarg}")
+        
+        klip.remove()
+        klip, = sub_ax.plot(OC, TC, marker='.',linestyle='-', c="#269eb3")
+        sub_ax.set_xlim([1, count+5])
+        
+        #text_ax.text(0,0, f"n of centrois is {count+1}")
+        
 
 
-    for instance in instances:
-        lel = instance.fit(test_data, weight=1)
-        print(f"TC now is {lel[-1]} units")
+
 
     # print(f"{results1[0]} are the optimal facility locations")
     # print(f"total network cost is {results1[1]} units")
