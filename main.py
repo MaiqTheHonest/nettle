@@ -7,11 +7,8 @@ mpl.use('TkAgg')
 from Weiszfelds_algorithm import weighted_distance # import own Weiszfeld's algorithm
 from matplotlib.collections import LineCollection
 
-
-
 start_time = perf_counter()
 
-#np.random.seed(123)
 
 class GeomMedianClustering:
 
@@ -145,14 +142,8 @@ class GeomMedianClustering:
         return cluster_centers, network_total_cost
 
 
-if __name__ == "__main__":
-    # test_data = np.random.randint(0, 100, (500, 2))
-    weight = 2
-
-    np.random.seed(123)
-    test_data = np.concatenate([np.random.normal(0, 5, size=(100, 2)), 
-         np.random.normal(5, 3, size=(100, 2))]) # bimodal normal draw
-
+def main():
+    
     fig = plt.figure(figsize=(10,8))
 
     gs0 = fig.add_gridspec(4, 4, wspace=0.25, right=0.90)
@@ -171,10 +162,10 @@ if __name__ == "__main__":
 
     text_ax = fig.add_subplot(gs0[1,3])
     text_ax.set_axis_off()
-    text_obj = text_ax.text(0, 0, f"centroid count = 0 \norigin-centroid weight = {weight} \ncentroid-point weight = 1 \nnetwork cost = 0",
+    text_obj = text_ax.text(0, -0.25, f"centroid count = 0 \norigin-centroid weight = {weight} \ncentroid-point weight = 1 \nnetwork cost = 0",
                              fontsize=11, linespacing=2)
 
-    instances = [GeomMedianClustering(k=i, fig=fig, ax1=main_ax, ax2=sub_ax) for i in range(1, 11)]
+    instances = [GeomMedianClustering(k=i, fig=fig, ax1=main_ax, ax2=sub_ax) for i in range(1, limit)]
 
     TC = []
     OC = []
@@ -190,12 +181,18 @@ if __name__ == "__main__":
         klip.remove()
         klip, = sub_ax.plot(OC, TC, marker='.',linestyle='-', c="#269eb3")
         sub_ax.set_xlim([1, count+5])
-        
-        #text_ax.text(0,0, f"n of centrois is {count+1}")
-        
 
 
 
+if __name__ == "__main__":
+    weight = 2
+    limit = 10
+    np.random.seed(123)
+    # test_data = np.random.randint(0, 100, (500, 2))
+    test_data = np.concatenate([np.random.normal(0, 5, size=(100, 2)), 
+         np.random.normal(5, 3, size=(100, 2))]) # bimodal normal draw
+    main()
+    
 
     # print(f"{results1[0]} are the optimal facility locations")
     # print(f"total network cost is {results1[1]} units")
