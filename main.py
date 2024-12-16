@@ -2,10 +2,11 @@
 import numpy as np 
 from time import perf_counter
 import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.use('TkAgg')
+import matplotlib as mpl
+mpl.use('TkAgg')
 from TC_no_numpy import weighted_distance # import own Weiszfeld's algorithm
 from matplotlib.collections import LineCollection
+
 
 
 start_time = perf_counter()
@@ -30,8 +31,8 @@ class GeomMedianClustering:
 
 
     def initialize_scatters(self):      # this is not in __init__ because scatters overlap when >1 class instances are created 
-        self.scatter1 = self.ax1.scatter(test_data[:, 0], test_data[:, 1], label='points')
-        #self.scatter1.set_cmap("tab20") # HAS to be called separately outside of scatter1 init
+        self.scatter1 = self.ax1.scatter(test_data[:, 0], test_data[:, 1], label='points', s=48, ec='black', lw=0.05)
+        self.scatter1.set_cmap("Set3") # HAS to be called separately outside of scatter1 init
         self.scatter2 = self.ax1.scatter([], [], c='red', marker="*", s=96,  label='centroids')
         self.scatter3 = self.ax1.scatter(0, 0, c='blue', label='perfect centre', marker="*", s=96)
 
@@ -54,6 +55,7 @@ class GeomMedianClustering:
 
         
     def update_graph(self, labs=None, dat=None, clear=True, add=True):
+
         self.scatter1.set_array(labs)
         self.scatter2.set_offsets(self.centroids)
         point_segments = np.stack([dat, self.centroids[labs]], axis=1)
@@ -135,7 +137,7 @@ class GeomMedianClustering:
         
 
         self.update_graph(labs=y, dat=X, clear=False, add=True)
-        plt.pause(1)
+        plt.pause(0.5)
         self.update_graph(labs=y, dat=X, clear=True, add=False)
         self.uninitialize_scatters()
         
@@ -148,22 +150,18 @@ if __name__ == "__main__":
     #np.random.seed(1234)
     test_data = np.concatenate([np.random.normal(0, 5, size=(100, 2)), 
          np.random.normal(5, 3, size=(100, 2))]) # bimodal normal draw
-    # figManager = plt.get_current_fig_manager()
-
-    # figManager.window.wm_geometry('1000x600+0+0')
 
     fig = plt.figure(figsize=(10,8), constrained_layout=True)
+
     gs0 = fig.add_gridspec(4, 4)
 
     main_ax = fig.add_subplot(gs0[0:4, 0:3])
     sub_ax = fig.add_subplot(gs0[0,3])
-    instances = [GeomMedianClustering(k=i, fig=fig, ax1=main_ax, ax2=sub_ax) for i in range(1, 3)]
-   # instances = [GeomMedianClustering(k=1, fig=fig)]
-
+    instances = [GeomMedianClustering(k=i, fig=fig, ax1=main_ax, ax2=sub_ax) for i in range(1, 7)]
 
 
     for instance in instances:
-        instance.fit(test_data, weight=1)
+        lel = instance.fit(test_data, weight=1)
 
     # print(f"{results1[0]} are the optimal facility locations")
     # print(f"total network cost is {results1[1]} units")
