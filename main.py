@@ -7,18 +7,21 @@ matplotlib.use('TkAgg')
 from TC_no_numpy import weighted_distance # import own Weiszfeld's algorithm
 from matplotlib.collections import LineCollection
 
+
 start_time = perf_counter()
 
 #np.random.seed(123)
 
 class GeomMedianClustering:
 
-    def __init__(self, fig, k=3):
+    def __init__(self, fig, ax1, ax2, k=3):
 
         self.k = k
         self.centroids = None
         self.perfect_cent = [None, None]  # filler for EI
         self.fig = fig
+        self.ax1 = ax1
+        self.ax2 = ax2
         self.scatter1 = None
         #self.scatter1.set_cmap("tab20") # HAS to be called separately outside of scatter1 init
         self.scatter2 = None
@@ -27,10 +30,10 @@ class GeomMedianClustering:
 
 
     def initialize_scatters(self):      # this is not in __init__ because scatters overlap when >1 class instances are created 
-        self.scatter1 = plt.scatter(test_data[:, 0], test_data[:, 1], label='points')
+        self.scatter1 = self.ax1.scatter(test_data[:, 0], test_data[:, 1], label='points')
         #self.scatter1.set_cmap("tab20") # HAS to be called separately outside of scatter1 init
-        self.scatter2 = plt.scatter([], [], c='red', marker="*", s=96,  label='centroids')
-        self.scatter3 = plt.scatter(0, 0, c='blue', label='perfect centre', marker="*", s=96)
+        self.scatter2 = self.ax1.scatter([], [], c='red', marker="*", s=96,  label='centroids')
+        self.scatter3 = self.ax1.scatter(0, 0, c='blue', label='perfect centre', marker="*", s=96)
 
     def uninitialize_scatters(self):    # again, avoids overlap with multiple instances
         self.scatter1.remove()
@@ -61,8 +64,8 @@ class GeomMedianClustering:
 
             self.lca = LineCollection(point_segments, color='black', alpha=0.1)
             self.lcb = LineCollection(centroid_segments, linewidth=2, linestyle="dashed", color='blue', alpha=0.8)
-            plt.gca().add_collection(self.lca)
-            plt.gca().add_collection(self.lcb)
+            self.ax1.add_collection(self.lca)
+            self.ax1.add_collection(self.lcb)
 
         plt.draw()
         plt.pause(0.05)
@@ -145,11 +148,19 @@ if __name__ == "__main__":
     #np.random.seed(1234)
     test_data = np.concatenate([np.random.normal(0, 5, size=(100, 2)), 
          np.random.normal(5, 3, size=(100, 2))]) # bimodal normal draw
+    # figManager = plt.get_current_fig_manager()
 
-    fig = plt.figure(figsize=(6,6))
+    # figManager.window.wm_geometry('1000x600+0+0')
 
-    instances = [GeomMedianClustering(k=i, fig=fig) for i in range(1, 11)]
+    fig = plt.figure(figsize=(10,8), constrained_layout=True)
+    gs0 = fig.add_gridspec(4, 4)
+
+    main_ax = fig.add_subplot(gs0[0:4, 0:3])
+    sub_ax = fig.add_subplot(gs0[0,3])
+    instances = [GeomMedianClustering(k=i, fig=fig, ax1=main_ax, ax2=sub_ax) for i in range(1, 3)]
    # instances = [GeomMedianClustering(k=1, fig=fig)]
+
+
 
     for instance in instances:
         instance.fit(test_data, weight=1)
